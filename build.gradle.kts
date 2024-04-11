@@ -16,6 +16,7 @@ dependencies {
 
     implementation("net.bramp.ffmpeg:ffmpeg:0.8.0")
     implementation("com.github.gotson:webp-imageio:0.2.2")
+    implementation("com.google.code.gson:gson:2.10.1")
 }
 
 tasks.jar {

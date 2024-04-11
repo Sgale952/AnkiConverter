@@ -16,11 +16,13 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Locale;
 
+import static github.sgale.Properter.getSetting;
+
 public class Converter {
-    private static final String FFMPEG_DIR = "C:\\Program Files\\FFmpeg\\bin\\ffmpeg.exe";
+    private static final String FFMPEG_PATH = getSetting("FFmpegPath");
 
     public static String convertAac(String input) throws IOException {
-        FFmpeg ffmpeg = new FFmpeg(FFMPEG_DIR);
+        FFmpeg ffmpeg = new FFmpeg(FFMPEG_PATH);
         String output = getOutput(input, ".aac");
 
         FFmpegBuilder builder = new FFmpegBuilder()
@@ -33,8 +35,7 @@ public class Converter {
         FFmpegExecutor executor = new FFmpegExecutor(ffmpeg);
         executor.createJob(builder).run();
 
-        deleteUnconvertedFile(input);
-
+        deleteOldFile(input);
         return output;
     }
 
@@ -56,8 +57,7 @@ public class Converter {
             writer.dispose();
         }
 
-        deleteUnconvertedFile(input);
-
+        deleteOldFile(input);
         return outputFile.toString();
     }
 
@@ -66,7 +66,7 @@ public class Converter {
         return input.substring(0, dotIndex)+extension;
     }
 
-    private static void deleteUnconvertedFile(String input) {
+    static void deleteOldFile(String input) {
         File file = new File(input);
         file.delete();
     }
