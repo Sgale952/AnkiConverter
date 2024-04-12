@@ -1,4 +1,4 @@
-package github.sgale;
+package github.sgale.tasks;
 
 import com.luciad.imageio.webp.WebPImageWriterSpi;
 import com.luciad.imageio.webp.WebPWriteParam;
@@ -16,14 +16,31 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Locale;
 
-import static github.sgale.Properter.getSetting;
+import static github.sgale.tasks.PropertyGenerator.getSetting;
 
-public class Converter {
+public class MediaConverter {
+    private final String input;
     private static final String FFMPEG_PATH = getSetting("FFmpegPath");
 
-    public static String convertAac(String input) throws IOException {
+    public MediaConverter(String input) {
+        this.input = input;
+    }
+
+    public String switchMediaConverter(String type) throws IOException {
+        switch (type) {
+            case "-aac" -> {
+                return convertToAac();
+            }
+            case "-webp" -> {
+                return convertToWebp();
+            }
+            default -> throw new IllegalArgumentException("Incorrect arguments");
+        }
+    }
+
+    private String convertToAac() throws IOException {
         FFmpeg ffmpeg = new FFmpeg(FFMPEG_PATH);
-        String output = getOutput(input, ".aac");
+        String output = getOutputPath(input, ".aac");
 
         FFmpegBuilder builder = new FFmpegBuilder()
                 .setInput(input)
@@ -35,13 +52,12 @@ public class Converter {
         FFmpegExecutor executor = new FFmpegExecutor(ffmpeg);
         executor.createJob(builder).run();
 
-        deleteOldFile(input);
         return output;
     }
 
-    public static String convertWebp(String input) throws IOException {
+    private String convertToWebp() throws IOException {
         File inputFile = new File(input);
-        File outputFile = new File(getOutput(input, ".webp"));
+        File outputFile = new File(getOutputPath(input, ".webp"));
         Locale locale = new Locale("en", "US");
 
         try(ImageOutputStream output = ImageIO.createImageOutputStream(outputFile)) {
@@ -57,17 +73,11 @@ public class Converter {
             writer.dispose();
         }
 
-        deleteOldFile(input);
         return outputFile.toString();
     }
 
-    private static String getOutput(String input, String extension) {
+    private String getOutputPath(String input, String extension) {
         int dotIndex = input.lastIndexOf('.');
         return input.substring(0, dotIndex)+extension;
-    }
-
-    static void deleteOldFile(String input) {
-        File file = new File(input);
-        file.delete();
     }
 }

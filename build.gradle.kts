@@ -1,10 +1,10 @@
+group = "github.sgale.ankiconverter"
+version = "1.1"
+
 plugins {
     id("java")
     id("com.github.johnrengelman.shadow") version "8.1.1"
 }
-
-group = "github.sgale.ankiconverter"
-version = "1.0"
 
 repositories {
     mavenCentral()
@@ -21,7 +21,7 @@ dependencies {
 
 tasks.jar {
     manifest {
-        attributes["Main-Class"] = "github.sgale.Main"
+        attributes["Main-Class"] = "github.sgale.ankiConverter.Main"
     }
 }
 

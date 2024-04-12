@@ -1,4 +1,4 @@
-package github.sgale;
+package github.sgale.tasks;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -7,16 +7,16 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Properties;
 
-public class Properter {
+public class PropertyGenerator {
     private static final String SETTINGS_FILE = "ankiConverter.properties";
     private static final Properties properties = new Properties();
 
     public static void loadSettingsFile() {
-        try (FileInputStream in = new FileInputStream(SETTINGS_FILE)) {
-            properties.load(in);
+        try (FileInputStream propertyFile = new FileInputStream(SETTINGS_FILE)) {
+            properties.load(propertyFile);
         }
         catch (IOException e) {
-            if (!Files.exists(Paths.get(SETTINGS_FILE))) {
+            if(!Files.exists(Paths.get(SETTINGS_FILE))) {
                 setDefaultSettings();
                 System.exit(0);
             }
@@ -27,12 +27,19 @@ public class Properter {
     }
 
     private static void setDefaultSettings() {
+        setSetting("convertMedia", "true");
         setSetting("FFmpegPath", "C:\\Program Files\\FFmpeg\\bin\\ffmpeg.exe");
+
         setSetting("sendMedia", "true");
         setSetting("ankiUrl", "http://localhost:8765");
         setSetting("imageField", "Picture");
         setSetting("audioField", "SentenceAudio");
         setSetting("tag", "unconfigured");
+
+        setSetting("translate", "true");
+        setSetting("deeplApiKey", "ee87512a-007a-4db2-8332-5b9e7eb954e3:fx");
+        setSetting("targetLang", "RU");
+
         saveSettingsFile();
     }
 
