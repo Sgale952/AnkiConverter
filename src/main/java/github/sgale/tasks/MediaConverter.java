@@ -20,22 +20,40 @@ import static github.sgale.tasks.PropertyGenerator.getSetting;
 
 public class MediaConverter {
     private final String input;
-    private final String FFMPEG_PATH = getSetting("FFmpegPath");
+    private final String FFMPEG_PATH = getSetting("ffmpegPath");
 
     public MediaConverter(String input) {
         this.input = input;
     }
 
-    public String switchMediaConverter(String type) throws IOException {
-        switch (type) {
-            case "-aac" -> {
-                return convertToAac();
-            }
-            case "-webp" -> {
-                return convertToWebp();
-            }
-            default -> throw new IllegalArgumentException("Incorrect arguments");
+    public String switchMediaConverter() throws IOException {
+        try {
+            return convertToWebp();
         }
+        catch (IllegalArgumentException e) {
+            return convertToAac();
+        }
+    }
+
+    private String convertToWebp() throws IOException {
+        File inputFile = new File(input);
+        File outputFile = new File(getOutputPath(input, ".webp"));
+        Locale locale = new Locale("en", "US");
+
+        try (ImageOutputStream output = ImageIO.createImageOutputStream(outputFile)) {
+            BufferedImage image = ImageIO.read(inputFile);
+
+            ImageWriterSpi writerSpi = new WebPImageWriterSpi();
+            ImageWriter writer = writerSpi.createWriterInstance();
+
+            writer.setOutput(output);
+            WebPWriteParam webpWriteParam = new WebPWriteParam(locale);
+            writer.write(null, new IIOImage(image, null, null), webpWriteParam);
+
+            writer.dispose();
+        }
+
+        return outputFile.toString();
     }
 
     private String convertToAac() throws IOException {
@@ -53,27 +71,6 @@ public class MediaConverter {
         executor.createJob(builder).run();
 
         return output;
-    }
-
-    private String convertToWebp() throws IOException {
-        File inputFile = new File(input);
-        File outputFile = new File(getOutputPath(input, ".webp"));
-        Locale locale = new Locale("en", "US");
-
-        try(ImageOutputStream output = ImageIO.createImageOutputStream(outputFile)) {
-            BufferedImage image = ImageIO.read(inputFile);
-
-            ImageWriterSpi writerSpi = new WebPImageWriterSpi();
-            ImageWriter writer = writerSpi.createWriterInstance();
-
-            writer.setOutput(output);
-            WebPWriteParam webpWriteParam = new WebPWriteParam(locale);
-            writer.write(null, new IIOImage(image, null, null), webpWriteParam);
-
-            writer.dispose();
-        }
-
-        return outputFile.toString();
     }
 
     private String getOutputPath(String input, String extension) {

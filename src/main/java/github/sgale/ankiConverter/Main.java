@@ -5,22 +5,20 @@ import github.sgale.tasks.MediaConverter;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
 
 import static github.sgale.tasks.PropertyGenerator.getSetting;
 import static github.sgale.tasks.PropertyGenerator.loadSettingsFile;
 
 public class Main {
-    public static void main(String[] rawArgs) {
-        try {
-            loadSettingsFile();
-            HashMap<String, String> args = getArg(rawArgs);
-            String input = args.get("mediaPath");
-            String output = args.get("mediaPath");
+    public static void main(String[] args) {
+        loadSettingsFile();
+        String input = getMediaPath(args);
+        String output = getMediaPath(args);
 
+        try {
             if(getBoolSetting("convertMedia")) {
                 MediaConverter mediaConverter = new MediaConverter(input);
-                output = mediaConverter.switchMediaConverter(args.get("convertType"));
+                output = mediaConverter.switchMediaConverter();
                 deleteInitialFile(input);
             }
             if(getBoolSetting("sendMedia")) {
@@ -42,23 +40,13 @@ public class Main {
         return Boolean.parseBoolean(getSetting(key));
     }
 
-    private static HashMap<String, String> getArg(String[] args) {
-        String mediaPath;
-        String convertType;
-        HashMap<String, String> argsMap = new HashMap<>();
-
+    private static String getMediaPath(String[] args) throws IllegalArgumentException {
         for(String arg:args) {
-            if(arg.startsWith("-")) {
-                convertType = arg;
-                argsMap.put("convertType", convertType);
-            }
             if(arg.contains("/") || arg.contains("\\")) {
-                mediaPath = arg;
-                argsMap.put("mediaPath", mediaPath);
+                return arg;
             }
         }
-
-        return argsMap;
+        throw new IllegalArgumentException("Incorrect argument");
     }
 
     private static void deleteInitialFile(String input) {
