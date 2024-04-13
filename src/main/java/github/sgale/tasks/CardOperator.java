@@ -23,7 +23,7 @@ public class CardOperator {
     }
 
     public void applyMediaToCards() {
-        CardFinder cardFinder = new CardFinder(input);
+        CardFinder cardFinder = new CardFinder();
         MediaSaver mediaSaver = new MediaSaver(input);
 
         try {
@@ -36,7 +36,7 @@ public class CardOperator {
 
             for(long cardId: cardIds) {
                 System.out.println(cardId);
-                new FieldUpdater(input, cardId).changeMediaField();
+                new FieldUpdater(input, cardId).changeField("");
             }
         }
         catch (IOException e) {
@@ -54,7 +54,7 @@ public class CardOperator {
         return conn;
     }
 
-    protected String getFileName(String input) {
+    protected String getInputName() {
         int indexOfSlash = input.lastIndexOf('\\');
         if (indexOfSlash<0) {
             indexOfSlash = input.lastIndexOf('/');

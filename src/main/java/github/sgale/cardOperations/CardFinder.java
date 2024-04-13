@@ -9,14 +9,15 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.nio.charset.StandardCharsets;
 
 import static github.sgale.tasks.PropertyGenerator.getSetting;
 
 public class CardFinder extends CardOperator {
     private final String TAG;
 
-    public CardFinder(String input) {
-        super(input);
+    public CardFinder() {
+        super("");
         this.TAG  = getSetting("tag");
     }
 
@@ -24,7 +25,7 @@ public class CardFinder extends CardOperator {
         HttpURLConnection conn = createConnection("GET");
 
         try (OutputStream os = conn.getOutputStream()) {
-            os.write(buildJson().getBytes("utf-8"));
+            os.write(buildJson().getBytes(StandardCharsets.UTF_8));
         }
 
         if (conn.getResponseCode() != HttpURLConnection.HTTP_OK) {

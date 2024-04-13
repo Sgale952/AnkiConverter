@@ -7,6 +7,7 @@ import github.sgale.tasks.CardOperator;
 
 import java.io.*;
 import java.net.HttpURLConnection;
+import java.nio.charset.StandardCharsets;
 
 import static github.sgale.tasks.PropertyGenerator.getSetting;
 
@@ -26,17 +27,17 @@ public class FieldUpdater extends CardOperator {
         this.GLOSSARY_FIELD = getSetting("glossaryField");
     }
 
-    public void changeMediaField() throws IOException {
-        ChangeMediaField changeMediaField = new ChangeMediaField();
+    public void changeField(String field) throws IOException {
+        ChangeField changeField = new ChangeField();
         HttpURLConnection conn = createConnection("POST");
 
         try (OutputStream os = conn.getOutputStream()) {
-            os.write(changeMediaField.buildJson().getBytes("utf-8"));
+            os.write(changeField.buildJson(field).getBytes(StandardCharsets.UTF_8));
             System.out.println("Apply to card: " + conn.getResponseCode());
         }
     }
 
-    public String getGlossaryFieldValue() throws IOException {
+    public String getGlossaryValue() throws IOException {
         GetGlossaryFieldValue getGlossaryFieldValue = new GetGlossaryFieldValue();
         JsonObject jsonObject = JsonParser.parseString(getGlossaryFieldValue.sendRequest()).getAsJsonObject();
 
@@ -48,10 +49,13 @@ public class FieldUpdater extends CardOperator {
         return frontObject.getAsJsonPrimitive("value").getAsString();
     }
 
-    private class ChangeMediaField {
-        String buildJson() {
+    private class ChangeField {
+        String buildJson(String field) {
             JsonObject fields = new JsonObject();
-            fields.addProperty(getNoteField(), getFieldValue());
+            switch(field) {
+                case "media" -> fields.addProperty(getMediaFieldName(), glueMediaFieldValue());
+                case "glossary" -> fields.addProperty(GLOSSARY_FIELD, input);
+            }
 
             JsonObject note = new JsonObject();
             note.addProperty("id", cardId);
@@ -68,15 +72,15 @@ public class FieldUpdater extends CardOperator {
             return gson.toJson(request);
         }
 
-        String getNoteField() {
+        String getMediaFieldName() {
             int indexOfDot = input.lastIndexOf('.');
             String fileExtension = input.substring(indexOfDot);
             return fileExtension.equals(".webp") ? IMAGE_FIELD : AUDIO_FIELD;
         }
 
-        String getFieldValue() {
-            String fileName = getFileName(input);
-            return getNoteField().equals(IMAGE_FIELD) ? "<img src=" + fileName + ">" : "[sound:" + fileName + "]";
+        String glueMediaFieldValue() {
+            String fileName = getInputName();
+            return getMediaFieldName().equals(IMAGE_FIELD) ? "<img src=" + fileName + ">" : "[sound:" + fileName + "]";
         }
     }
 
@@ -85,7 +89,7 @@ public class FieldUpdater extends CardOperator {
             HttpURLConnection conn = createConnection("GET");
 
             try (OutputStream os = conn.getOutputStream()) {
-                os.write(buildJson().getBytes("utf-8"));
+                os.write(buildJson().getBytes(StandardCharsets.UTF_8));
                 System.out.println("Get glossary field: " + conn.getResponseCode());
             }
 
@@ -110,10 +114,10 @@ public class FieldUpdater extends CardOperator {
             StringBuilder response = new StringBuilder();
 
             try (InputStream inputStream = conn.getInputStream();
-                 BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+                 BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
 
                 String line;
-                while ((line = reader.readLine()) != null) {
+                while((line = reader.readLine()) != null) {
                     response.append(line);
                 }
             }
