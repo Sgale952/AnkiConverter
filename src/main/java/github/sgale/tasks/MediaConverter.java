@@ -20,7 +20,7 @@ import static github.sgale.tasks.PropertyGenerator.getSetting;
 
 public class MediaConverter {
     private final String input;
-    private static final String FFMPEG_PATH = getSetting("FFmpegPath");
+    private final String FFMPEG_PATH = getSetting("FFmpegPath");
 
     public MediaConverter(String input) {
         this.input = input;

@@ -38,6 +38,7 @@ public class PropertyGenerator {
 
         setSetting("translate", "true");
         setSetting("deeplApiKey", "ee87512a-007a-4db2-8332-5b9e7eb954e3:fx");
+        setSetting("glossaryField", "Glossary");
         setSetting("targetLang", "RU");
 
         saveSettingsFile();

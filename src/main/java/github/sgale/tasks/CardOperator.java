@@ -14,17 +14,17 @@ import static github.sgale.tasks.PropertyGenerator.getSetting;
 
 public class CardOperator {
     private final String input;
-    private final String ANKI_URL = getSetting("ankiUrl");
+    private final String ANKI_URL;
     protected final Gson gson = new Gson();
 
     public CardOperator(String input) {
         this.input = input;
+        this.ANKI_URL = getSetting("ankiUrl");
     }
 
     public void applyMediaToCards() {
         CardFinder cardFinder = new CardFinder(input);
         MediaSaver mediaSaver = new MediaSaver(input);
-        FieldUpdater fieldUpdater = new FieldUpdater(input);
 
         try {
             long[] cardIds = cardFinder.findByTag();
@@ -36,7 +36,7 @@ public class CardOperator {
 
             for(long cardId: cardIds) {
                 System.out.println(cardId);
-                fieldUpdater.changeMediaField(cardId);
+                new FieldUpdater(input, cardId).changeMediaField();
             }
         }
         catch (IOException e) {

@@ -13,10 +13,11 @@ import java.net.HttpURLConnection;
 import static github.sgale.tasks.PropertyGenerator.getSetting;
 
 public class CardFinder extends CardOperator {
-    private final String TAG = getSetting("tag");
+    private final String TAG;
 
     public CardFinder(String input) {
         super(input);
+        this.TAG  = getSetting("tag");
     }
 
     public long[] findByTag() throws IOException {
@@ -46,7 +47,7 @@ public class CardFinder extends CardOperator {
         return gson.toJson(request);
     }
 
-    private long[] getResponse(HttpURLConnection conn) {
+    private long[] getResponse(HttpURLConnection conn) throws IOException {
         try (BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())))) {
             StringBuilder response = new StringBuilder();
             String output;
@@ -61,9 +62,6 @@ public class CardFinder extends CardOperator {
             }
 
             return cardIds;
-        }
-        catch (IOException e) {
-            throw new RuntimeException(e);
         }
         finally {
             conn.disconnect();

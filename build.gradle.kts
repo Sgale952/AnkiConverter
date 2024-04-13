@@ -1,5 +1,5 @@
 group = "github.sgale.ankiconverter"
-version = "1.1"
+version = "1.2"
 
 plugins {
     id("java")
@@ -16,6 +16,7 @@ dependencies {
 
     implementation("net.bramp.ffmpeg:ffmpeg:0.8.0")
     implementation("com.github.gotson:webp-imageio:0.2.2")
+    implementation("com.deepl.api:deepl-java:1.5.0")
     implementation("com.google.code.gson:gson:2.10.1")
 }
 
