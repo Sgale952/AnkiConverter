@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import github.sgale.cardOperations.CardFinder;
 import github.sgale.cardOperations.FieldUpdater;
+import github.sgale.cardOperations.Fields;
 import github.sgale.cardOperations.MediaSaver;
 
 import java.io.BufferedReader;
@@ -39,7 +40,7 @@ public class CardOperator {
             mediaSaver.store();
 
             for(long cardId: cardIds) {
-                new FieldUpdater(input, cardId).changeField("media");
+                new FieldUpdater(input, cardId).setFieldValue(Fields.MEDIA);
             }
         }
         catch (IOException e) {
@@ -55,9 +56,9 @@ public class CardOperator {
             for(long cardId: cardIds) {
                 FieldUpdater fieldUpdater = new FieldUpdater(null, cardId);
                 if(!fieldUpdater.checkTag("translated")) {
-                    String glossary = fieldUpdater.getGlossaryValue();
+                    String glossary = fieldUpdater.getFieldValue(Fields.GLOSSARY);
                     String translatedGlossary = new TextTranslator(glossary).translateGlossary();
-                    new FieldUpdater(translatedGlossary, cardId).changeField("glossary");
+                    new FieldUpdater(translatedGlossary, cardId).setFieldValue(Fields.GLOSSARY);
 
                     fieldUpdater.addTag("translated");
                 }
@@ -68,8 +69,17 @@ public class CardOperator {
         }
     }
 
-    public void deleteModifyTag() {
+    public void deleteModifyTag() throws IOException {
+        long[] cardIds = new CardFinder().findByTag();
+        for(long cardId: cardIds) {
+            FieldUpdater fieldUpdater = new FieldUpdater(null, cardId);
+            String audioFieldValue = fieldUpdater.getFieldValue(Fields.AUDIO);
+            String imageFieldValue = fieldUpdater.getFieldValue(Fields.IMAGE);
 
+            if(audioFieldValue!=null && imageFieldValue!=null) {
+                fieldUpdater.removeTag(getSetting("tag"));
+            }
+        }
     }
 
     protected HttpURLConnection createConnection(String method) throws IOException {

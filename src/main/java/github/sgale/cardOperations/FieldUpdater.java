@@ -9,44 +9,36 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.nio.charset.StandardCharsets;
 
-import static github.sgale.tasks.PropertyGenerator.getSetting;
-
 public class FieldUpdater extends CardOperator {
     private final long cardId;
     private final String input;
-    private final String IMAGE_FIELD;
-    private final String AUDIO_FIELD;
-    private final String GLOSSARY_FIELD;
 
     public FieldUpdater(String input, long cardId) {
         super(input);
         this.input = input;
         this.cardId = cardId;
-        this.IMAGE_FIELD = getSetting("imageField");
-        this.AUDIO_FIELD = getSetting("audioField");
-        this.GLOSSARY_FIELD = getSetting("glossaryField");
     }
 
-    public void changeField(String field) throws IOException {
-        ChangeField changeField = new ChangeField();
+    public void setFieldValue(Fields field) throws IOException {
+        SetFieldValue setFieldValue = new SetFieldValue();
         HttpURLConnection conn = createConnection("POST");
 
         try (OutputStream os = conn.getOutputStream()) {
-            os.write(changeField.buildJson(field).getBytes(StandardCharsets.UTF_8));
+            os.write(setFieldValue.buildJson(field).getBytes(StandardCharsets.UTF_8));
             System.out.println("Apply to card: " + conn.getResponseCode());
         }
     }
 
-    public String getGlossaryValue() throws IOException {
-        GetGlossaryFieldValue getGlossaryFieldValue = new GetGlossaryFieldValue();
-        JsonObject jsonObject = JsonParser.parseString(getGlossaryFieldValue.sendRequest()).getAsJsonObject();
+    public String getFieldValue(Fields field) throws IOException {
+        GetFieldValue getFieldValue = new GetFieldValue();
+        JsonObject jsonObject = JsonParser.parseString(getFieldValue.sendRequest()).getAsJsonObject();
 
         JsonArray resultArray = jsonObject.getAsJsonArray("result");
         JsonObject firstResult = resultArray.get(0).getAsJsonObject();
         JsonObject fieldsObject = firstResult.getAsJsonObject("fields");
-        JsonObject frontObject = fieldsObject.getAsJsonObject(GLOSSARY_FIELD);
+        JsonObject valueObject = fieldsObject.getAsJsonObject(field.getKey());
 
-        return frontObject.getAsJsonPrimitive("value").getAsString();
+        return valueObject.getAsJsonPrimitive("value").getAsString();
     }
 
     public boolean checkTag(String tag) throws IOException {
@@ -72,22 +64,29 @@ public class FieldUpdater extends CardOperator {
     }
 
     public void addTag(String tag) throws IOException {
-        AddTag addTag = new AddTag();
-        HttpURLConnection conn = createConnection("GET");
+        changeTag(tag, "addTags");
+    }
+
+    public void removeTag(String tag) throws IOException {
+        changeTag(tag, "removeTags");
+    }
+
+    private void changeTag(String tag, String action) throws IOException {
+        ChangeTag changeTag = new ChangeTag();
+        HttpURLConnection conn = createConnection("POST");
 
         try (OutputStream os = conn.getOutputStream()) {
-            os.write(addTag.buildJson(tag).getBytes(StandardCharsets.UTF_8));
-            System.out.println("Add tag: " + conn.getResponseCode());
-            System.out.println(addTag.buildJson(tag));
+            os.write(changeTag.buildJson(tag, action).getBytes(StandardCharsets.UTF_8));
+            System.out.println("Change tag: " + conn.getResponseCode());
         }
     }
 
-    private class ChangeField {
-        String buildJson(String field) {
+    private class SetFieldValue {
+        String buildJson(Fields field) {
             JsonObject fields = new JsonObject();
             switch(field) {
-                case "media" -> fields.addProperty(getMediaFieldName(), glueMediaFieldValue());
-                case "glossary" -> fields.addProperty(GLOSSARY_FIELD, input);
+                case MEDIA -> fields.addProperty(getMediaFieldName().getKey(), glueMediaFieldValue());
+                case GLOSSARY -> fields.addProperty(Fields.GLOSSARY.getKey(), input);
             }
 
             JsonObject note = new JsonObject();
@@ -101,19 +100,19 @@ public class FieldUpdater extends CardOperator {
             return gson.toJson(request);
         }
 
-        String getMediaFieldName() {
+        Fields getMediaFieldName() {
             int indexOfDot = input.lastIndexOf('.');
             String fileExtension = input.substring(indexOfDot);
-            return fileExtension.equals(".webp") ? IMAGE_FIELD : AUDIO_FIELD;
+            return fileExtension.equals(".webp") ? Fields.IMAGE : Fields.AUDIO;
         }
 
         String glueMediaFieldValue() {
             String fileName = getInputName();
-            return getMediaFieldName().equals(IMAGE_FIELD) ? "<img src=" + fileName + ">" : "[sound:" + fileName + "]";
+            return getMediaFieldName().equals(Fields.IMAGE) ? "<img src=" + fileName + ">" : "[sound:" + fileName + "]";
         }
     }
 
-    private class GetGlossaryFieldValue {
+    private class GetFieldValue {
         String sendRequest() throws IOException {
             HttpURLConnection conn = createConnection("GET");
 
@@ -158,8 +157,8 @@ public class FieldUpdater extends CardOperator {
         }
     }
 
-    private class AddTag {
-        private String buildJson(String tag) {
+    private class ChangeTag {
+        private String buildJson(String tag, String action) {
             JsonObject params = new JsonObject();
             JsonArray notesArray = new JsonArray();
             notesArray.add(cardId);
@@ -167,7 +166,7 @@ public class FieldUpdater extends CardOperator {
             params.add("notes", notesArray);
             params.addProperty("tags", tag);
 
-            JsonObject request = createBasicRequest("addTags", params);
+            JsonObject request = createBasicRequest(action, params);
             return request.toString();
         }
     }

@@ -32,11 +32,7 @@ public class MediaSaver extends CardOperator {
         params.addProperty("filename", fileName);
         params.addProperty("path", input);
 
-        JsonObject request = new JsonObject();
-        request.addProperty("action", "storeMediaFile");
-        request.addProperty("version", 6);
-        request.add("params", params);
-
+        JsonObject request = createBasicRequest("storeMediaFile", params);
         return gson.toJson(request);
     }
 }

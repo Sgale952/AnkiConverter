@@ -28,11 +28,28 @@ public class MediaConverter {
 
     public String switchMediaConverter() throws IOException {
         try {
-            return convertToWebp();
-        }
-        catch (IllegalArgumentException e) {
             return convertToAac();
         }
+        catch (RuntimeException | IOException e) {
+            return convertToWebp();
+        }
+    }
+
+    private String convertToAac() throws IOException {
+        FFmpeg ffmpeg = new FFmpeg(FFMPEG_PATH);
+        String output = getOutputPath(input, ".aac");
+
+        FFmpegBuilder builder = new FFmpegBuilder()
+                .setInput(input)
+                .overrideOutputFiles(true)
+                .addOutput(output)
+                .setAudioCodec("aac")
+                .done();
+
+        FFmpegExecutor executor = new FFmpegExecutor(ffmpeg);
+        executor.createJob(builder).run();
+
+        return output;
     }
 
     private String convertToWebp() throws IOException {
@@ -54,23 +71,6 @@ public class MediaConverter {
         }
 
         return outputFile.toString();
-    }
-
-    private String convertToAac() throws IOException {
-        FFmpeg ffmpeg = new FFmpeg(FFMPEG_PATH);
-        String output = getOutputPath(input, ".aac");
-
-        FFmpegBuilder builder = new FFmpegBuilder()
-                .setInput(input)
-                .overrideOutputFiles(true)
-                .addOutput(output)
-                .setAudioCodec("aac")
-                .done();
-
-        FFmpegExecutor executor = new FFmpegExecutor(ffmpeg);
-        executor.createJob(builder).run();
-
-        return output;
     }
 
     private String getOutputPath(String input, String extension) {
