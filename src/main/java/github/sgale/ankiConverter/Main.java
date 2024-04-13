@@ -30,6 +30,10 @@ public class Main {
                 CardOperator cardOperator = new CardOperator(null);
                 cardOperator.translateCardsGlossary();
             }
+            if(getBoolSetting("autoDeleteTag")) {
+                CardOperator cardOperator = new CardOperator(null);
+                cardOperator.deleteModifyTag();
+            }
         }
         catch (IOException e) {
             e.printStackTrace();

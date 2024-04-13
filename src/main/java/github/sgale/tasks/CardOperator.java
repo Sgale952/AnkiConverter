@@ -1,13 +1,17 @@
 package github.sgale.tasks;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import github.sgale.cardOperations.CardFinder;
 import github.sgale.cardOperations.FieldUpdater;
 import github.sgale.cardOperations.MediaSaver;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.NoSuchElementException;
 
 import static github.sgale.tasks.PropertyGenerator.getSetting;
@@ -35,7 +39,6 @@ public class CardOperator {
             mediaSaver.store();
 
             for(long cardId: cardIds) {
-                System.out.println(cardId);
                 new FieldUpdater(input, cardId).changeField("media");
             }
         }
@@ -50,14 +53,23 @@ public class CardOperator {
         try {
             long[] cardIds = cardFinder.findByTag();
             for(long cardId: cardIds) {
-                String glossary = new FieldUpdater("", cardId).getGlossaryValue();
-                String translatedGlossary = new TextTranslator(glossary).translateGlossary();
-                new FieldUpdater(translatedGlossary, cardId).changeField("glossary");
+                FieldUpdater fieldUpdater = new FieldUpdater(null, cardId);
+                if(!fieldUpdater.checkTag("translated")) {
+                    String glossary = fieldUpdater.getGlossaryValue();
+                    String translatedGlossary = new TextTranslator(glossary).translateGlossary();
+                    new FieldUpdater(translatedGlossary, cardId).changeField("glossary");
+
+                    fieldUpdater.addTag("translated");
+                }
             }
         }
         catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void deleteModifyTag() {
+
     }
 
     protected HttpURLConnection createConnection(String method) throws IOException {
@@ -68,6 +80,29 @@ public class CardOperator {
         conn.setDoOutput(true);
 
         return conn;
+    }
+
+    protected JsonObject createBasicRequest(String action, JsonObject params) {
+        JsonObject request = new JsonObject();
+        request.addProperty("action", action);
+        request.addProperty("version", 6);
+        request.add("params", params);
+        return request;
+    }
+
+    protected String getRawResponse(HttpURLConnection conn) throws IOException {
+        StringBuilder response = new StringBuilder();
+
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8))) {
+            String output;
+            while ((output = br.readLine()) != null) {
+                response.append(output);
+            }
+        }
+        finally {
+            conn.disconnect();
+        }
+        return response.toString();
     }
 
     protected String getInputName() {

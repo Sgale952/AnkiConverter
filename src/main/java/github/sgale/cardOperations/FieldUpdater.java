@@ -49,6 +49,39 @@ public class FieldUpdater extends CardOperator {
         return frontObject.getAsJsonPrimitive("value").getAsString();
     }
 
+    public boolean checkTag(String tag) throws IOException {
+        String[] tags = getTags();
+        for(String t: tags) {
+            if(t.equals(tag)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public String[] getTags() throws IOException {
+        GetTags getTags = new GetTags();
+        HttpURLConnection conn = createConnection("GET");
+
+        try (OutputStream os = conn.getOutputStream()) {
+            os.write(getTags.buildJson().getBytes(StandardCharsets.UTF_8));
+            System.out.println("Get tags: " + conn.getResponseCode());
+        }
+
+        return getTags.getResponse(conn);
+    }
+
+    public void addTag(String tag) throws IOException {
+        AddTag addTag = new AddTag();
+        HttpURLConnection conn = createConnection("GET");
+
+        try (OutputStream os = conn.getOutputStream()) {
+            os.write(addTag.buildJson(tag).getBytes(StandardCharsets.UTF_8));
+            System.out.println("Add tag: " + conn.getResponseCode());
+            System.out.println(addTag.buildJson(tag));
+        }
+    }
+
     private class ChangeField {
         String buildJson(String field) {
             JsonObject fields = new JsonObject();
@@ -64,11 +97,7 @@ public class FieldUpdater extends CardOperator {
             JsonObject params = new JsonObject();
             params.add("note", note);
 
-            JsonObject request = new JsonObject();
-            request.addProperty("action", "updateNoteFields");
-            request.addProperty("version", 6);
-            request.add("params", params);
-
+            JsonObject request = createBasicRequest("updateNoteFields", params);
             return gson.toJson(request);
         }
 
@@ -93,7 +122,7 @@ public class FieldUpdater extends CardOperator {
                 System.out.println("Get glossary field: " + conn.getResponseCode());
             }
 
-            return getResponse(conn);
+            return getRawResponse(conn);
         }
 
         private String buildJson() {
@@ -102,27 +131,44 @@ public class FieldUpdater extends CardOperator {
             notes.add(cardId);
             params.add("notes", notes);
 
-            JsonObject request = new JsonObject();
-            request.addProperty("action", "notesInfo");
-            request.addProperty("version", 6);
-            request.add("params", params);
-
+            JsonObject request = createBasicRequest("notesInfo", params);
             return gson.toJson(request);
         }
+    }
 
-        private String getResponse(HttpURLConnection conn) throws IOException {
-            StringBuilder response = new StringBuilder();
+    private class GetTags {
+        private String buildJson() {
+            JsonObject params = new JsonObject();
+            params.addProperty("note", cardId);
 
-            try (InputStream inputStream = conn.getInputStream();
-                 BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
+            JsonObject request = createBasicRequest("getNoteTags", params);
+            return request.toString();
+        }
 
-                String line;
-                while((line = reader.readLine()) != null) {
-                    response.append(line);
-                }
+        protected String[] getResponse(HttpURLConnection conn) throws IOException {
+            String rawResponse = getRawResponse(conn);
+            JsonArray tagsJson = gson.fromJson(rawResponse.toString(), JsonObject.class).getAsJsonArray("result");
+
+            String[] tags = new String[tagsJson.size()];
+            for (int i = 0; i < tagsJson.size(); i++) {
+                tags[i] = tagsJson.get(i).getAsString();
             }
 
-            return response.toString();
+            return tags;
+        }
+    }
+
+    private class AddTag {
+        private String buildJson(String tag) {
+            JsonObject params = new JsonObject();
+            JsonArray notesArray = new JsonArray();
+            notesArray.add(cardId);
+
+            params.add("notes", notesArray);
+            params.addProperty("tags", tag);
+
+            JsonObject request = createBasicRequest("addTags", params);
+            return request.toString();
         }
     }
 }

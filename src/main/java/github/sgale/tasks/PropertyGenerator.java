@@ -35,6 +35,7 @@ public class PropertyGenerator {
         setSetting("imageField", "Picture");
         setSetting("audioField", "SentenceAudio");
         setSetting("tag", "unconfigured");
+        setSetting("autoDeleteTag", "true");
 
         setSetting("translate", "true");
         setSetting("deeplApiKey", "ee87512a-007a-4db2-8332-5b9e7eb954e3:fx");

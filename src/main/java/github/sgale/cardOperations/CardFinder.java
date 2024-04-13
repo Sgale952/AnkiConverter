@@ -49,23 +49,14 @@ public class CardFinder extends CardOperator {
     }
 
     private long[] getResponse(HttpURLConnection conn) throws IOException {
-        try (BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())))) {
-            StringBuilder response = new StringBuilder();
-            String output;
-            while ((output = br.readLine()) != null) {
-                response.append(output);
-            }
+        String rawResponse = getRawResponse(conn);
+        JsonArray cardIdsJson = gson.fromJson(rawResponse, JsonObject.class).getAsJsonArray("result");
 
-            JsonArray cardIdsJson = gson.fromJson(response.toString(), JsonObject.class).getAsJsonArray("result");
-            long[] cardIds = new long[cardIdsJson.size()];
-            for (int i = 0; i < cardIdsJson.size(); i++) {
-                cardIds[i] = cardIdsJson.get(i).getAsLong();
-            }
+        long[] cardIds = new long[cardIdsJson.size()];
+        for (int i = 0; i < cardIdsJson.size(); i++) {
+            cardIds[i] = cardIdsJson.get(i).getAsLong();
+        }
 
-            return cardIds;
-        }
-        finally {
-            conn.disconnect();
-        }
+        return cardIds;
     }
 }
