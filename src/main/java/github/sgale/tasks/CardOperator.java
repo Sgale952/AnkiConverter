@@ -28,7 +28,7 @@ public class CardOperator {
 
         try {
             long[] cardIds = cardFinder.findByTag();
-            if(cardIds.length==0) {
+            if(cardIds.length == 0) {
                 throw new NoSuchElementException("Cards not found");
             }
 
@@ -36,10 +36,26 @@ public class CardOperator {
 
             for(long cardId: cardIds) {
                 System.out.println(cardId);
-                new FieldUpdater(input, cardId).changeField("");
+                new FieldUpdater(input, cardId).changeField("media");
             }
         }
         catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void translateCardsGlossary() {
+        CardFinder cardFinder = new CardFinder();
+
+        try {
+            long[] cardIds = cardFinder.findByTag();
+            for(long cardId: cardIds) {
+                String glossary = new FieldUpdater("", cardId).getGlossaryValue();
+                String translatedGlossary = new TextTranslator(glossary).translateGlossary();
+                new FieldUpdater(translatedGlossary, cardId).changeField("glossary");
+            }
+        }
+        catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -56,7 +72,7 @@ public class CardOperator {
 
     protected String getInputName() {
         int indexOfSlash = input.lastIndexOf('\\');
-        if (indexOfSlash<0) {
+        if (indexOfSlash < 0) {
             indexOfSlash = input.lastIndexOf('/');
         }
 

@@ -29,7 +29,8 @@ public class Main {
                 deleteInitialFile(output);
             }
             if(getBoolSetting("translate")) {
-
+                CardOperator cardOperator = new CardOperator(null);
+                cardOperator.translateCardsGlossary();
             }
         }
         catch (IOException e) {

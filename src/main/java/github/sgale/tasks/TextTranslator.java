@@ -32,7 +32,7 @@ public class TextTranslator {
         allSentences.addAll(doc.select("div[data-sc-content=xref-glossary]"));
 
         Elements exampleSentences = doc.select("div[data-sc-content=example-sentence-b]");
-        for (Element sentence : exampleSentences) {
+        for(Element sentence: exampleSentences) {
             sentence.select("span").remove();
             allSentences.add(sentence);
         }
@@ -41,7 +41,7 @@ public class TextTranslator {
     }
 
     private void translateElements(Elements sentences) throws DeepLException, InterruptedException {
-        for(Element sentence:sentences) {
+        for(Element sentence: sentences) {
             String translatedSentence = translateText(sentence.text());
             sentence.text(translatedSentence);
         }
