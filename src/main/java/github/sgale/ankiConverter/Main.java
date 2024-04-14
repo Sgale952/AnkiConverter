@@ -2,46 +2,49 @@ package github.sgale.ankiConverter;
 
 import github.sgale.tasks.CardOperator;
 import github.sgale.tasks.MediaConverter;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.config.Configurator;
 
 import java.io.File;
-import java.io.IOException;
 
-import static github.sgale.tasks.PropertyGenerator.getSetting;
 import static github.sgale.tasks.PropertyGenerator.loadSettingsFile;
 
 public class Main {
+    private static final Logger log = LogManager.getLogger(Main.class);
+
     public static void main(String[] args) {
         loadSettingsFile();
         String input = getMediaPath(args);
         String output = getMediaPath(args);
 
         try {
-            if(getBoolSetting("convertMedia")) {
+            if(!Modules.LOGGING.getStatus()) {
+                Configurator.setRootLevel(Level.OFF);
+            }
+            if(Modules.CONVERT_MEDIA.getStatus()) {
                 MediaConverter mediaConverter = new MediaConverter(input);
                 output = mediaConverter.switchMediaConverter();
                 deleteInitialFile(input);
             }
-            if(getBoolSetting("sendMedia")) {
+            if(Modules.SEND_MEDIA.getStatus()) {
                 CardOperator cardOperator = new CardOperator(output);
                 cardOperator.applyMediaToCards();
                 deleteInitialFile(output);
             }
-            if(getBoolSetting("translate")) {
+            if(Modules.TRANSLATE.getStatus()) {
                 CardOperator cardOperator = new CardOperator(null);
                 cardOperator.translateCardsGlossary();
             }
-            if(getBoolSetting("autoDeleteTag")) {
+            if(Modules.AUTOREMOVE_TAG.getStatus()) {
                 CardOperator cardOperator = new CardOperator(null);
-                cardOperator.deleteModifyTag();
+                cardOperator.removeModifyTag();
             }
         }
-        catch (IOException e) {
-            e.printStackTrace();
+        catch (Exception e) {
+            log.error(e);
         }
-    }
-
-    private static boolean getBoolSetting(String key) {
-        return Boolean.parseBoolean(getSetting(key));
     }
 
     private static String getMediaPath(String[] args) throws IllegalArgumentException {
@@ -50,7 +53,7 @@ public class Main {
                 return arg;
             }
         }
-        throw new IllegalArgumentException("Incorrect argument");
+        throw new IllegalArgumentException("Incorrect argument!");
     }
 
     private static void deleteInitialFile(String input) {

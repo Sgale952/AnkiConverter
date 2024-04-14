@@ -3,10 +3,10 @@ package github.sgale.cardOperations;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import github.sgale.tasks.CardOperator;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.nio.charset.StandardCharsets;
@@ -15,6 +15,7 @@ import static github.sgale.tasks.PropertyGenerator.getSetting;
 
 public class CardFinder extends CardOperator {
     private final String TAG;
+    private static final Logger log = LogManager.getLogger(CardFinder.class);
 
     public CardFinder() {
         super("");
@@ -32,7 +33,7 @@ public class CardFinder extends CardOperator {
             throw new RuntimeException("Failed : HTTP error code : " + conn.getResponseCode());
         }
 
-        System.out.println("Find cards: " + conn.getResponseCode());
+        log.info("Find cards: " + conn.getResponseMessage());
         return getResponse(conn);
     }
 
@@ -41,7 +42,7 @@ public class CardFinder extends CardOperator {
         params.addProperty("query", "tag:"+TAG);
 
         JsonObject request = new JsonObject();
-        request.addProperty("action", "findCards");
+        request.addProperty("action", "findNotes");
         request.addProperty("version", 6);
         request.add("params", params);
 

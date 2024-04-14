@@ -5,6 +5,8 @@ import com.luciad.imageio.webp.WebPWriteParam;
 import net.bramp.ffmpeg.FFmpeg;
 import net.bramp.ffmpeg.FFmpegExecutor;
 import net.bramp.ffmpeg.builder.FFmpegBuilder;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
@@ -21,6 +23,7 @@ import static github.sgale.tasks.PropertyGenerator.getSetting;
 public class MediaConverter {
     private final String input;
     private final String FFMPEG_PATH = getSetting("ffmpegPath");
+    private final Logger log = LogManager.getLogger(MediaConverter.class);
 
     public MediaConverter(String input) {
         this.input = input;
@@ -31,6 +34,8 @@ public class MediaConverter {
             return convertToAac();
         }
         catch (RuntimeException | IOException e) {
+            log.warn(e);
+            log.warn("Trying convert to webp...");
             return convertToWebp();
         }
     }

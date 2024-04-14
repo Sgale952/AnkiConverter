@@ -6,6 +6,8 @@ import github.sgale.cardOperations.CardFinder;
 import github.sgale.cardOperations.FieldUpdater;
 import github.sgale.cardOperations.Fields;
 import github.sgale.cardOperations.MediaSaver;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -20,6 +22,7 @@ import static github.sgale.tasks.PropertyGenerator.getSetting;
 public class CardOperator {
     private final String input;
     private final String ANKI_URL;
+    private static final Logger log = LogManager.getLogger(CardOperator.class);
     protected final Gson gson = new Gson();
 
     public CardOperator(String input) {
@@ -40,11 +43,12 @@ public class CardOperator {
             mediaSaver.store();
 
             for(long cardId: cardIds) {
+                log.warn("Applying media to card: "+cardId);
                 new FieldUpdater(input, cardId).setFieldValue(Fields.MEDIA);
             }
         }
-        catch (IOException e) {
-            e.printStackTrace();
+        catch (IOException | NoSuchElementException e) {
+            log.error(e);
         }
     }
 
@@ -54,7 +58,9 @@ public class CardOperator {
         try {
             long[] cardIds = cardFinder.findByTag();
             for(long cardId: cardIds) {
+                log.warn("Translating card glossary: "+cardId);
                 FieldUpdater fieldUpdater = new FieldUpdater(null, cardId);
+
                 if(!fieldUpdater.checkTag("translated")) {
                     String glossary = fieldUpdater.getFieldValue(Fields.GLOSSARY);
                     String translatedGlossary = new TextTranslator(glossary).translateGlossary();
@@ -62,22 +68,29 @@ public class CardOperator {
 
                     fieldUpdater.addTag("translated");
                 }
+                else {
+                    log.info("Already translated");
+                }
             }
         }
         catch (Exception e) {
-            e.printStackTrace();
+            log.error(e);
         }
     }
 
-    public void deleteModifyTag() throws IOException {
+    public void removeModifyTag() throws IOException {
         long[] cardIds = new CardFinder().findByTag();
         for(long cardId: cardIds) {
+            log.warn("Removing card modify tag: "+cardId);
             FieldUpdater fieldUpdater = new FieldUpdater(null, cardId);
             String audioFieldValue = fieldUpdater.getFieldValue(Fields.AUDIO);
             String imageFieldValue = fieldUpdater.getFieldValue(Fields.IMAGE);
 
-            if(audioFieldValue!=null && imageFieldValue!=null) {
+            if(!audioFieldValue.isEmpty() && !imageFieldValue.isEmpty()) {
                 fieldUpdater.removeTag(getSetting("tag"));
+            }
+            else {
+                log.info("Found empty media field! Abort removing");
             }
         }
     }
@@ -108,10 +121,12 @@ public class CardOperator {
             while ((output = br.readLine()) != null) {
                 response.append(output);
             }
+
         }
         finally {
             conn.disconnect();
         }
+
         return response.toString();
     }
 

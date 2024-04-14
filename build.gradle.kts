@@ -1,5 +1,5 @@
 group = "github.sgale.ankiconverter"
-version = "1.7"
+version = "1.8"
 
 plugins {
     id("java")
@@ -20,6 +20,8 @@ dependencies {
 
     implementation("com.google.code.gson:gson:2.10.1")
     implementation("org.jsoup:jsoup:1.17.2")
+
+    implementation("org.apache.logging.log4j:log4j-core:2.23.1")
 }
 
 tasks.jar {

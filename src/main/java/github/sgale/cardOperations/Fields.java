@@ -9,7 +9,6 @@ public enum Fields {
     GLOSSARY(getSetting("glossaryField"));
 
     private final String fieldKey;
-
     Fields(String fieldKey) {
         this.fieldKey = fieldKey;
     }

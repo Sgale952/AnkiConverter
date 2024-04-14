@@ -4,6 +4,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import github.sgale.tasks.CardOperator;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -12,6 +14,7 @@ import java.nio.charset.StandardCharsets;
 public class FieldUpdater extends CardOperator {
     private final long cardId;
     private final String input;
+    private static final Logger log = LogManager.getLogger(FieldUpdater.class);
 
     public FieldUpdater(String input, long cardId) {
         super(input);
@@ -25,7 +28,7 @@ public class FieldUpdater extends CardOperator {
 
         try (OutputStream os = conn.getOutputStream()) {
             os.write(setFieldValue.buildJson(field).getBytes(StandardCharsets.UTF_8));
-            System.out.println("Apply to card: " + conn.getResponseCode());
+            log.info("Apply to card: " + conn.getResponseMessage());
         }
     }
 
@@ -57,7 +60,7 @@ public class FieldUpdater extends CardOperator {
 
         try (OutputStream os = conn.getOutputStream()) {
             os.write(getTags.buildJson().getBytes(StandardCharsets.UTF_8));
-            System.out.println("Get tags: " + conn.getResponseCode());
+            log.info("Get tags: " + conn.getResponseMessage());
         }
 
         return getTags.getResponse(conn);
@@ -77,7 +80,7 @@ public class FieldUpdater extends CardOperator {
 
         try (OutputStream os = conn.getOutputStream()) {
             os.write(changeTag.buildJson(tag, action).getBytes(StandardCharsets.UTF_8));
-            System.out.println("Change tag: " + conn.getResponseCode());
+            log.info("Change tag: " + conn.getResponseMessage());
         }
     }
 
@@ -118,7 +121,7 @@ public class FieldUpdater extends CardOperator {
 
             try (OutputStream os = conn.getOutputStream()) {
                 os.write(buildJson().getBytes(StandardCharsets.UTF_8));
-                System.out.println("Get glossary field: " + conn.getResponseCode());
+                log.info("Get field: " + conn.getResponseMessage());
             }
 
             return getRawResponse(conn);

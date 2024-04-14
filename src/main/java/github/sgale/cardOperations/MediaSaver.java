@@ -2,6 +2,8 @@ package github.sgale.cardOperations;
 
 import com.google.gson.JsonObject;
 import github.sgale.tasks.CardOperator;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -10,6 +12,7 @@ import java.nio.charset.StandardCharsets;
 
 public class MediaSaver extends CardOperator {
     private final String input = getInput();
+    private static final Logger log = LogManager.getLogger(MediaSaver.class);
 
     public MediaSaver(String input) {
         super(input);
@@ -22,7 +25,7 @@ public class MediaSaver extends CardOperator {
             os.write(buildJson().getBytes(StandardCharsets.UTF_8));
         }
 
-        System.out.println("Store media: " + conn.getResponseCode());
+        log.info("Store media: " + conn.getResponseMessage());
     }
 
     private String buildJson() {
