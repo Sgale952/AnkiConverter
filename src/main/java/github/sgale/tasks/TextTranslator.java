@@ -30,6 +30,7 @@ public class TextTranslator {
         Elements allSentences = new Elements();
         allSentences.addAll(doc.select("ul[data-sc-content=glossary] li"));
         allSentences.addAll(doc.select("div[data-sc-content=xref-glossary]"));
+        allSentences.addAll(doc.select("div[style=\"margin-left: 0.5rem;\"]"));
 
         Elements exampleSentences = doc.select("div[data-sc-content=example-sentence-b]");
         for(Element sentence: exampleSentences) {
@@ -49,7 +50,6 @@ public class TextTranslator {
 
     private String translateText(String text) throws DeepLException, InterruptedException {
         TranslatorOptions translatorOptions = new TranslatorOptions();
-        translatorOptions.setAppInfo("AnkiConverter", "1.2");
         translatorOptions.setSendPlatformInfo(false);
 
         Translator translator = new Translator(DEEPL_KEY, translatorOptions);

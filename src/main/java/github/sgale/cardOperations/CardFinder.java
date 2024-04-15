@@ -18,7 +18,7 @@ public class CardFinder extends CardOperator {
     private static final Logger log = LogManager.getLogger(CardFinder.class);
 
     public CardFinder() {
-        super("");
+        super(null);
         this.TAG  = getSetting("tag");
     }
 

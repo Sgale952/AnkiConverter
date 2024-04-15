@@ -33,7 +33,7 @@ public class Main {
                 cardOperator.applyMediaToCards();
                 deleteInitialFile(output);
             }
-            if(Modules.TRANSLATE.getStatus()) {
+            if(Modules.TRANSLATE_GLOSSARY.getStatus()) {
                 CardOperator cardOperator = new CardOperator(null);
                 cardOperator.translateCardsGlossary();
             }
@@ -53,7 +53,7 @@ public class Main {
                 return arg;
             }
         }
-        throw new IllegalArgumentException("Incorrect argument!");
+        return "";
     }
 
     private static void deleteInitialFile(String input) {

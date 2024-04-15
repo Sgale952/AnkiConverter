@@ -1,5 +1,5 @@
 group = "github.sgale.ankiconverter"
-version = "1.8"
+version = "1.9"
 
 plugins {
     id("java")
@@ -24,12 +24,19 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-core:2.23.1")
 }
 
+tasks.test {
+    useJUnitPlatform()
+}
+
 tasks.jar {
     manifest {
+        attributes["Project-Version"] = version
         attributes["Main-Class"] = "github.sgale.ankiConverter.Main"
     }
 }
 
-tasks.test {
-    useJUnitPlatform()
+tasks.named("clean") {
+    doLast {
+        delete("ankiConverter.log", "ankiConverter.properties")
+    }
 }

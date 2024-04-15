@@ -1,12 +1,9 @@
 package github.sgale.tasks;
 
-import github.sgale.ankiConverter.Main;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Properties;
@@ -33,9 +30,7 @@ public class PropertyGenerator {
 
     private static void setDefaultSettings() {
         setSetting("logging", "true");
-
         setSetting("convertMedia", "true");
-        setSetting("FFmpegPath", "C:\\Program Files\\FFmpeg\\bin\\ffmpeg.exe");
 
         setSetting("sendMedia", "true");
         setSetting("ankiUrl", "http://localhost:8765");
@@ -44,9 +39,10 @@ public class PropertyGenerator {
         setSetting("tag", "unconfigured");
         setSetting("autoremoveTag", "true");
 
-        setSetting("translate", "true");
+        setSetting("translateGlossary", "true");
         setSetting("deeplApiKey", "ee87512a-007a-4db2-8332-5b9e7eb954e3:fx");
-        setSetting("glossaryField", "Glossary");
+        setSetting("glossaryField", "PrimaryDefinition");
+        setSetting("translatedGlossaryField", "PrimaryDefinition");
         setSetting("targetLang", "RU");
 
         saveSettingsFile();
@@ -55,19 +51,52 @@ public class PropertyGenerator {
     private static void saveSettingsFile() {
         try (FileOutputStream out = new FileOutputStream(SETTINGS_FILE)) {
             properties.store(out, "https://github.com/Sgale952/AnkiConverter");
+            log.info("Properties file successfully created");
         }
         catch (IOException e) {
             log.error(e);
         }
     }
 
+    public static String getFFmpegPath() {
+        try {
+            if (System.getProperty("os.name").contains("Windows")) {
+                return findFFmpegPath("where");
+            }
+            return findFFmpegPath("which");
+        }
+        catch (IOException e) {
+            log.error(e);
+        }
+        return "";
+    }
+
+    private static String findFFmpegPath(String command) throws IOException {
+        String path;
+        Process process = Runtime.getRuntime().exec(command+" ffmpeg");
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+            path = reader.readLine();
+        }
+        return path;
+    }
+
     public static String getSetting(String key) {
-        return properties.getProperty(key);
+        return checkProperty(key);
     }
 
     public static boolean getBoolSetting(String key) {
-        return Boolean.parseBoolean(getSetting(key));
+        return Boolean.parseBoolean(checkProperty(key));
     }
+
+    private static String checkProperty(String key) {
+        String property = properties.getProperty(key);
+        if(property==null) {
+            log.error("Missing property! Update ankiConverter.properties file "+ key);
+            System.exit(0);
+        }
+        return property;
+    }
+
     private static void setSetting(String key, String value) {
         properties.setProperty(key, value);
     }

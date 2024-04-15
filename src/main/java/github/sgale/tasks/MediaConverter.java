@@ -18,11 +18,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Locale;
 
-import static github.sgale.tasks.PropertyGenerator.getSetting;
+import static github.sgale.tasks.PropertyGenerator.getFFmpegPath;
 
 public class MediaConverter {
     private final String input;
-    private final String FFMPEG_PATH = getSetting("ffmpegPath");
+    private final String FFMPEG_PATH = getFFmpegPath();
     private final Logger log = LogManager.getLogger(MediaConverter.class);
 
     public MediaConverter(String input) {

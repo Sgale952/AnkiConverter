@@ -6,7 +6,7 @@ public enum Modules {
     LOGGING(getBoolSetting("logging")),
     CONVERT_MEDIA(getBoolSetting("convertMedia")),
     SEND_MEDIA(getBoolSetting("sendMedia")),
-    TRANSLATE(getBoolSetting("translate")),
+    TRANSLATE_GLOSSARY(getBoolSetting("translateGlossary")),
     AUTOREMOVE_TAG(getBoolSetting("autoremoveTag"));
 
     private final boolean value;

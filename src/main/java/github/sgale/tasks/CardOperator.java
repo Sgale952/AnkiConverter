@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import github.sgale.cardOperations.CardFinder;
 import github.sgale.cardOperations.FieldUpdater;
-import github.sgale.cardOperations.Fields;
+import github.sgale.ankiConverter.Fields;
 import github.sgale.cardOperations.MediaSaver;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -43,7 +43,7 @@ public class CardOperator {
             mediaSaver.store();
 
             for(long cardId: cardIds) {
-                log.warn("Applying media to card: "+cardId);
+                log.info("Applying media to card: "+cardId);
                 new FieldUpdater(input, cardId).setFieldValue(Fields.MEDIA);
             }
         }
@@ -58,13 +58,13 @@ public class CardOperator {
         try {
             long[] cardIds = cardFinder.findByTag();
             for(long cardId: cardIds) {
-                log.warn("Translating card glossary: "+cardId);
+                log.info("Translating card glossary: "+cardId);
                 FieldUpdater fieldUpdater = new FieldUpdater(null, cardId);
 
                 if(!fieldUpdater.checkTag("translated")) {
                     String glossary = fieldUpdater.getFieldValue(Fields.GLOSSARY);
                     String translatedGlossary = new TextTranslator(glossary).translateGlossary();
-                    new FieldUpdater(translatedGlossary, cardId).setFieldValue(Fields.GLOSSARY);
+                    new FieldUpdater(translatedGlossary, cardId).setFieldValue(Fields.TRANSLATED_GLOSSARY);
 
                     fieldUpdater.addTag("translated");
                 }
@@ -81,7 +81,7 @@ public class CardOperator {
     public void removeModifyTag() throws IOException {
         long[] cardIds = new CardFinder().findByTag();
         for(long cardId: cardIds) {
-            log.warn("Removing card modify tag: "+cardId);
+            log.info("Removing card modify tag: "+cardId);
             FieldUpdater fieldUpdater = new FieldUpdater(null, cardId);
             String audioFieldValue = fieldUpdater.getFieldValue(Fields.AUDIO);
             String imageFieldValue = fieldUpdater.getFieldValue(Fields.IMAGE);

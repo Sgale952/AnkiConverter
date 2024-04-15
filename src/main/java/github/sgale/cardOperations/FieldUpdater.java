@@ -3,6 +3,7 @@ package github.sgale.cardOperations;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import github.sgale.ankiConverter.Fields;
 import github.sgale.tasks.CardOperator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -87,9 +88,11 @@ public class FieldUpdater extends CardOperator {
     private class SetFieldValue {
         String buildJson(Fields field) {
             JsonObject fields = new JsonObject();
-            switch(field) {
-                case MEDIA -> fields.addProperty(getMediaFieldName().getKey(), glueMediaFieldValue());
-                case GLOSSARY -> fields.addProperty(Fields.GLOSSARY.getKey(), input);
+            if(field == Fields.MEDIA) {
+                fields.addProperty(getMediaFieldName().getKey(), glueMediaFieldValue());
+            }
+            else {
+                fields.addProperty(field.getKey(), input);
             }
 
             JsonObject note = new JsonObject();
@@ -149,7 +152,7 @@ public class FieldUpdater extends CardOperator {
 
         protected String[] getResponse(HttpURLConnection conn) throws IOException {
             String rawResponse = getRawResponse(conn);
-            JsonArray tagsJson = gson.fromJson(rawResponse.toString(), JsonObject.class).getAsJsonArray("result");
+            JsonArray tagsJson = gson.fromJson(rawResponse, JsonObject.class).getAsJsonArray("result");
 
             String[] tags = new String[tagsJson.size()];
             for (int i = 0; i < tagsJson.size(); i++) {
