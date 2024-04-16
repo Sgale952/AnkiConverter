@@ -15,11 +15,13 @@ public class Main {
     private static final Logger log = LogManager.getLogger(Main.class);
 
     public static void main(String[] args) {
+        log.info("Program starting...");
         loadSettingsFile();
-        String input = getMediaPath(args);
-        String output = getMediaPath(args);
 
         try {
+            String input = getMediaPath(args);
+            String output = getMediaPath(args);
+
             if(!Modules.LOGGING.getStatus()) {
                 Configurator.setRootLevel(Level.OFF);
             }
@@ -53,7 +55,7 @@ public class Main {
                 return arg;
             }
         }
-        return "";
+        throw new IllegalArgumentException("Incorrect path");
     }
 
     private static void deleteInitialFile(String input) {

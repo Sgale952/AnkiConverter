@@ -58,28 +58,6 @@ public class PropertyGenerator {
         }
     }
 
-    public static String getFFmpegPath() {
-        try {
-            if (System.getProperty("os.name").contains("Windows")) {
-                return findFFmpegPath("where");
-            }
-            return findFFmpegPath("which");
-        }
-        catch (IOException e) {
-            log.error(e);
-        }
-        return "";
-    }
-
-    private static String findFFmpegPath(String command) throws IOException {
-        String path;
-        Process process = Runtime.getRuntime().exec(command+" ffmpeg");
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-            path = reader.readLine();
-        }
-        return path;
-    }
-
     public static String getSetting(String key) {
         return checkProperty(key);
     }

@@ -1,5 +1,5 @@
 group = "github.sgale.ankiconverter"
-version = "1.9"
+version = "1.10"
 
 plugins {
     id("java")
@@ -14,7 +14,6 @@ dependencies {
     testImplementation(platform("org.junit:junit-bom:5.9.1"))
     testImplementation("org.junit.jupiter:junit-jupiter")
 
-    implementation("net.bramp.ffmpeg:ffmpeg:0.8.0")
     implementation("com.github.gotson:webp-imageio:0.2.2")
     implementation("com.deepl.api:deepl-java:1.5.0")
 
