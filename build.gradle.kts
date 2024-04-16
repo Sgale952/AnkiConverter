@@ -1,5 +1,5 @@
 group = "github.sgale.ankiconverter"
-version = "1.10"
+version = "2.0"
 
 plugins {
     id("java")
