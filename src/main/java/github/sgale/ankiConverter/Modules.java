@@ -1,6 +1,6 @@
 package github.sgale.ankiConverter;
 
-import static github.sgale.tasks.PropertyGenerator.getBoolSetting;
+import static github.sgale.tasks.SettingsLoader.getBoolSetting;
 
 public enum Modules {
     LOGGING(getBoolSetting("logging")),

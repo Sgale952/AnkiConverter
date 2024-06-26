@@ -17,7 +17,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.NoSuchElementException;
 
-import static github.sgale.tasks.PropertyGenerator.getSetting;
+import static github.sgale.tasks.SettingsLoader.getSetting;
 
 public class CardOperator {
     private final String input;

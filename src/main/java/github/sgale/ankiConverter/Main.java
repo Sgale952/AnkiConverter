@@ -9,14 +9,14 @@ import org.apache.logging.log4j.core.config.Configurator;
 
 import java.io.File;
 
-import static github.sgale.tasks.PropertyGenerator.loadSettingsFile;
+import static github.sgale.tasks.SettingsLoader.*;
 
 public class Main {
     private static final Logger log = LogManager.getLogger(Main.class);
 
     public static void main(String[] args) {
         log.info("Program starting...");
-        loadSettingsFile();
+        loadSettings();
 
         try {
             String input = getMediaPath(args);

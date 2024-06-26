@@ -6,7 +6,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import static github.sgale.tasks.PropertyGenerator.getSetting;
+import static github.sgale.tasks.SettingsLoader.getSetting;
 
 public class TextTranslator {
     private final String input;

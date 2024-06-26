@@ -11,7 +11,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.nio.charset.StandardCharsets;
 
-import static github.sgale.tasks.PropertyGenerator.getSetting;
+import static github.sgale.tasks.SettingsLoader.getSetting;
 
 public class CardFinder extends CardOperator {
     private final String TAG;

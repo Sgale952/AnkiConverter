@@ -18,6 +18,7 @@ dependencies {
     implementation("com.deepl.api:deepl-java:1.5.0")
 
     implementation("com.google.code.gson:gson:2.10.1")
+    implementation("org.ini4j:ini4j:0.5.4")
     implementation("org.jsoup:jsoup:1.17.2")
 
     implementation("org.apache.logging.log4j:log4j-core:2.23.1")
@@ -36,6 +37,6 @@ tasks.jar {
 
 tasks.named("clean") {
     doLast {
-        delete("ankiConverter.log", "ankiConverter.properties")
+        delete("ankiConverter.log", "ankiConverter.ini")
     }
 }

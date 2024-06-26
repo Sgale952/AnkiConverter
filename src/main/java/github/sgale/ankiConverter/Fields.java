@@ -1,6 +1,6 @@
 package github.sgale.ankiConverter;
 
-import static github.sgale.tasks.PropertyGenerator.getSetting;
+import static github.sgale.tasks.SettingsLoader.getSetting;
 
 public enum Fields {
     MEDIA(""),

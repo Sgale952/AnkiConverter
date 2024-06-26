@@ -3,7 +3,7 @@ build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
-ankiConverter.properties
+ankiConverter_settings.ini
 ankiConverter.log
 
 ### IntelliJ IDEA ###
@@ -39,3 +39,4 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+/ankiConverter_settings.ini
